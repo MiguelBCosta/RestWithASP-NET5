@@ -10,11 +10,11 @@ namespace RestWithASPNET.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class CalculatorController : ControllerBase
+    public class PersonController : ControllerBase
     {
-        private readonly ILogger<CalculatorController> _logger;
+        private readonly ILogger<PersonController> _logger;
 
-        public CalculatorController(ILogger<CalculatorController> logger)
+        public PersonController(ILogger<PersonController> logger)
         {
             _logger = logger;
         }
@@ -78,6 +78,19 @@ namespace RestWithASPNET.Controllers
             if (double.TryParse(firstNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out firstNumberCast))
             {
                 double result = Math.Sqrt(firstNumberCast);
+                return Ok(result.ToString());
+            }
+            return BadRequest("Invalid Input");
+        }
+
+        [HttpGet("average/{firstNumber}/{secondNumber}")]
+        public IActionResult Average(string firstNumber, string secondNumber)
+        {
+            double firstNumberCast;
+            double secondNumberCast;
+            if (double.TryParse(firstNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out firstNumberCast) && double.TryParse(secondNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out secondNumberCast))
+            {
+                double result = (firstNumberCast + secondNumberCast)/2;
                 return Ok(result.ToString());
             }
             return BadRequest("Invalid Input");
