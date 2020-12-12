@@ -1,99 +1,61 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
+using RestWithASPNET.Model;
+using RestWithASPNET.Bussines;
 
 namespace RestWithASPNET.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
+    [ApiController]   
+    [ApiVersion("1")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class PersonController : ControllerBase
     {
         private readonly ILogger<PersonController> _logger;
+        private readonly IPersonBussines _personBussines;
 
-        public PersonController(ILogger<PersonController> logger)
+        public PersonController(ILogger<PersonController> logger, IPersonBussines personBussines)
         {
             _logger = logger;
+            _personBussines = personBussines;
         }
 
-        [HttpGet("sum/{firstNumber}/{secondNumber}")]
-        public IActionResult Sum(string firstNumber, string secondNumber)
+        [HttpGet]
+        public IActionResult GetAllPerson()
         {
-            double firstNumberCast;
-            double secondNumberCast;
-            if (double.TryParse(firstNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out firstNumberCast) && double.TryParse(secondNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out secondNumberCast))
-            {
-                double result = firstNumberCast + secondNumberCast;
-                return Ok(result.ToString());
-            }
-            return BadRequest("Invalid Input");
+            return Ok(_personBussines.FindAll());
         }
 
-        [HttpGet("subtract/{firstNumber}/{secondNumber}")]
-        public IActionResult Subtract(string firstNumber, string secondNumber)
+        [HttpGet("{id}")]
+        public IActionResult GetPerson(long id)
         {
-            double firstNumberCast;
-            double secondNumberCast;
-            if (double.TryParse(firstNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out firstNumberCast) && double.TryParse(secondNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out secondNumberCast))
-            {
-                double result = firstNumberCast - secondNumberCast;
-                return Ok(result.ToString());
-            }
-            return BadRequest("Invalid Input");
+            var person = _personBussines.FindById(id);
+            if (person is null)
+                return NotFound();
+
+            return Ok(person);
         }
 
-        [HttpGet("multiply/{firstNumber}/{secondNumber}")]
-        public IActionResult Multiply(string firstNumber, string secondNumber)
+        [HttpPost]
+        public IActionResult CreatePerson([FromBody] Person person)
         {
-            double firstNumberCast;
-            double secondNumberCast;
-            if (double.TryParse(firstNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out firstNumberCast) && double.TryParse(secondNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out secondNumberCast))
-            {
-                double result = firstNumberCast * secondNumberCast;
-                return Ok(result.ToString());
-            }
-            return BadRequest("Invalid Input");
+            if (person is null)
+                return BadRequest();
+            return Ok(_personBussines.Create(person));
         }
 
-        [HttpGet("divide/{firstNumber}/{secondNumber}")]
-        public IActionResult Divide(string firstNumber, string secondNumber)
+        [HttpPut]
+        public IActionResult UpdatePerson([FromBody] Person person)
         {
-            double firstNumberCast;
-            double secondNumberCast;
-            if (double.TryParse(firstNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out firstNumberCast) && double.TryParse(secondNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out secondNumberCast))
-            {
-                double result = firstNumberCast / secondNumberCast;
-                return Ok(result.ToString());
-            }
-            return BadRequest("Invalid Input");
+            if (person is null)
+                return BadRequest();
+            return Ok(_personBussines.Update(person));
         }
 
-        [HttpGet("Square/{firstNumber}")]
-        public IActionResult Square(string firstNumber)
+        [HttpDelete("{id}")]
+        public IActionResult DeletePerson(long id)
         {
-            double firstNumberCast;            
-            if (double.TryParse(firstNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out firstNumberCast))
-            {
-                double result = Math.Sqrt(firstNumberCast);
-                return Ok(result.ToString());
-            }
-            return BadRequest("Invalid Input");
-        }
-
-        [HttpGet("average/{firstNumber}/{secondNumber}")]
-        public IActionResult Average(string firstNumber, string secondNumber)
-        {
-            double firstNumberCast;
-            double secondNumberCast;
-            if (double.TryParse(firstNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out firstNumberCast) && double.TryParse(secondNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out secondNumberCast))
-            {
-                double result = (firstNumberCast + secondNumberCast)/2;
-                return Ok(result.ToString());
-            }
-            return BadRequest("Invalid Input");
+            _personBussines.Delete(id);
+            return NoContent();
         }
     }
 }

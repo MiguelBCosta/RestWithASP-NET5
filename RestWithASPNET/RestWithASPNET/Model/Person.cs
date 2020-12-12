@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using RestWithASPNET.Model.Base;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RestWithASPNET.Model
 {
-    public class Person
-    {
-        public long Id { get; set; }
+    [Table("person")]
+    public class Person: BaseEntity
+    {        
+        [Column("first_name")]
         public string FirstName { get; set; }
+        [Column("last_name")]
         public string LastName { get; set; }
+        [Column("address")]
         public string Anddress { get; set; }
+        [Column("gender")]
         public string Gender { get; set; }
     }
 }
